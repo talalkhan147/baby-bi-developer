@@ -1,245 +1,73 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+
     <title>Pauli's Happy Calculator</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
 
-        body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+    <link rel="stylesheet" href="styles.css">
 
-        .calculator-container {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .title {
-            text-align: center;
-            font-size: 28px;
-            margin-bottom: 25px;
-            color: #2c3e50;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #34495e;
-            font-weight: 500;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, select:focus {
-            border-color: #3498db;
-        }
-
-        .results {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-
-        .result-item {
-            margin-bottom: 12px;
-            color: #2c3e50;
-        }
-
-        .profit {
-            color: #27ae60;
-            font-weight: bold;
-        }
-
-        .loss {
-            color: #c0392b;
-            font-weight: bold;
-        }
-
-        .waiting-text {
-            text-align: center;
-            color: #7f8c8d;
-            font-style: italic;
-        }
-
-        .ceiling {
-            font-size: 0.8em;
-            color: #666;
-            margin-left: 5px;
-        }
-
-        @media (max-width: 480px) {
-            .calculator-container {
-                padding: 15px;
-            }
-            
-            .title {
-                font-size: 24px;
-            }
-        }
-    </style>
 </head>
+
 <body>
-    <div class="calculator-container">
-        <h1 class="title"><img width="10%" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f63a/512.webp" > Pauli's Happy Calculator</h1>
-        
-        <div class="input-group">
-            <label>Buy Price (PKR)</label>
-            <input type="number" id="buyPrice" min="0" step="0.01">
-        </div>
 
-        <div class="input-group">
-            <label>Sell Price (PKR)</label>
-            <input type="number" id="sellPrice" min="0" step="0.01">
-        </div>
-
-        <div class="input-group">
-            <label>Type</label>
-            <select id="calcType">
-                <option value="quantity">Quantity</option>
-                <option value="investment">Investment</option>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label id="amountLabel">Quantity</label>
-            <input type="number" id="amount" min="0" step="1">
-        </div>
-
-        <div class="input-group">
-            <label>Broker Fee (PKR)</label>
-            <input type="number" id="brokerFee" min="0" step="0.01">
-        </div>
-
-        <div class="results" id="results">
-            <p class="waiting-text">Enter Data to See Results</p>
-        </div> <br>
-        <p style="text-align: center;">Developed with <img width="5%" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f496/512.webp"> by <a href="https://talalkhan147.github.io/baby-bi-developer/">TK</a></p>
-    </div>
+    <h1>Loading Calculator...</h1>
 
     <script>
-        // Service Worker script embedded
-        const serviceWorkerScript = `
-            self.addEventListener('install', (event) => {
-                console.log('Service Worker installed');
-            });
 
-            self.addEventListener('fetch', (event) => {
-                event.respondWith(fetch(event.request));
-            });
-        `;
+    
+const onlineUrl = "https://raw.githack.com/talalkhan147/Stock-Calculator/main/index.html";
+async function checkAndUpdateCode() {
 
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                const blob = new Blob([serviceWorkerScript], { type: 'application/javascript' });
-                const workerURL = URL.createObjectURL(blob);
-                
-                navigator.serviceWorker.register(workerURL)
-                    .then(reg => console.log('Service Worker registered'))
-                    .catch(err => console.log('Service Worker registration failed:', err));
-            });
+    try {
+
+        // Try to fetch the latest code from the online source
+
+        const response = await fetch(onlineUrl, { cache: "no-store" });
+
+        if (!response.ok) throw new Error("Failed to fetch online code");
+
+        const onlineCode = await response.text();
+
+        const localCode = localStorage.getItem("calculatorCode");
+
+        // If the online version is different, update local storage
+
+        if (localCode !== onlineCode) {
+
+            localStorage.setItem("calculatorCode", onlineCode);
+
+            console.log("Local storage updated with new code");
+
         }
 
-        // Get DOM elements
-        const buyPrice = document.getElementById('buyPrice');
-        const sellPrice = document.getElementById('sellPrice');
-        const calcType = document.getElementById('calcType');
-        const amount = document.getElementById('amount');
-        const brokerFee = document.getElementById('brokerFee');
-        const results = document.getElementById('results');
-        const amountLabel = document.getElementById('amountLabel');
+        // Load the calculator from the latest fetched code
 
-        // Update label based on dropdown
-        calcType.addEventListener('change', () => {
-            amountLabel.textContent = calcType.value === 'quantity' ? 'Quantity' : 'Investment (PKR)';
-            calculate();
-        });
+        document.body.innerHTML = onlineCode;
 
-        // Add input listeners
-        [buyPrice, sellPrice, calcType, amount, brokerFee].forEach(input => {
-            input.addEventListener('input', calculate);
-        });
+    } catch (error) {
 
-        function calculate() {
-            const buy = parseFloat(buyPrice.value) || 0;
-            const sell = parseFloat(sellPrice.value) || 0;
-            const fee = parseFloat(brokerFee.value) || 0;
-            const value = parseFloat(amount.value) || 0;
+        console.log("Offline mode: Loading cached version");
 
-            if (!buy || !sell || !value || isNaN(fee)) {
-                results.innerHTML = '<p class="waiting-text">Enter Data to See Results</p>';
-                return;
-            }
+        document.body.innerHTML = localStorage.getItem("calculatorCode") || "<h1>Offline: No cached version found</h1>";
 
-            let quantity, investment;
-            if (calcType.value === 'quantity') {
-                quantity = value;
-                investment = quantity * buy;
-            } else {
-                investment = value;
-                quantity = investment / buy;
-            }
+    }
 
-            const totalReturn = quantity * sell;
-            const profitLoss = totalReturn - investment - fee;
-            const breakEven = (investment + fee) / quantity;
-            const profitPerShare = sell - buy - (fee / quantity);
-            const totalBroker = fee;
-            const riskReward = profitLoss / investment * 100;
+}
 
-            results.innerHTML = `
-                <div class="result-item">
-                    Profit / Loss: 
-                    <span class="${profitLoss >= 0 ? 'profit' : 'loss'}">
-                        ${profitLoss >= 0 ? '<img width="8%"  src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f929/512.webp">'+' ▲' : '<img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f972/512.gif" alt="🥲" width="32" height="32">' + ' ▼'} PKR.${profitLoss.toFixed(2)}
-                    </span>
-                    <span class="ceiling">(${Math.ceil(profitLoss)})</span>
-                </div>
-                <div class="result-item">
-                    ${calcType.value === 'quantity' ? 'Total Investment' : 'Total Quantity'}: 
-                    PKR.${calcType.value === 'quantity' ? investment.toFixed(2) : quantity.toFixed(2)}
-                    <span class="ceiling">(${Math.ceil(calcType.value === 'quantity' ? investment : quantity)})</span>
-                </div>
-                <div class="result-item">
-                    Total Return: PKR.${totalReturn.toFixed(2)}
-                    <span class="ceiling">(${Math.ceil(totalReturn)})</span>
-                </div>
-                <div class="result-item">Break-Even Price: PKR.${breakEven.toFixed(2)}</div>
-                <div class="result-item">Profit per Share: PKR.${profitPerShare.toFixed(2)}</div>
-                <div class="result-item">Risk-to-Reward: ${riskReward.toFixed(2)}% (${(riskReward/100).toFixed(2)})</div>
-                <div class="result-item">Total Broker Amount: PKR.${totalBroker.toFixed(2)}</div>
-            `;
-        }
-    </script>
+// Run the function when the page loads
+
+checkAndUpdateCode();
+
+    
+
+   </script>
+
 </body>
+
 </html>
